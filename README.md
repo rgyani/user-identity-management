@@ -109,21 +109,42 @@ Single sign-on (SSO) has evolved quietly into federated authentication. Federate
 
 Security Assertion Markup Language (SAML) and Open Authorization (OAuth) have emerged as the go-to technologies for federated authentication. While SAML is an Extensible Markup Language (XML)-based standard, OAuth is based on JavaScript Object Notation (JSON), binary, or even SAML formats.
 
-### OAuth (Open Auth)
-OAuth is a technical standard for **authorizing users** (NOTE: authorizing, not authentication). It is a protocol for passing authorization from one service to another without sharing the actual user credentials, such as a username and password. With OAuth, a user can sign in on one platform and then be authorized to perform actions and view data on another platform.  
-OAuth is one of the most common methods used to pass authorization from a single sign-on (SSO) service to another cloud application
-
-OAuth is not the same thing as Single Sign On (SSO). While they have some similarities — they are very different.
-
-OAuth is an authorization protocol. SSO is a high-level term used to describe a scenario in which a user uses the same credentials to access multiple domains
-
-#### How OAuth authorization tokens work?
-
-Suppose Alice wants to access her company's cloud file storage application. She will
-1. first sign into her company's SSO
-2. When she opens up the file storage application, instead of simply letting her in, the application requests authorization for Alice from her SSO.
-3. In response, the SSO sends an **OAuth authorization token** to the application. The token contains information about what privileges Alice should have within the application. The token will also have a time limit: after a certain amount of time, the token expires and Alice will have to sign in to her SSO again.
-
-### SAML (Security Assertion Markup Language)
-SAML is a standardized way to tell external applications and services that a user is who they say they are. SAML makes single sign-on (SSO) technology possible by providing a way to authenticate a user once and then communicate that authentication to multiple applications. The most current version of SAML is SAML 2.0.
 **SAML is for User Authentication, OAuth is for User Authorization** 
+
+### How SAML works – the authentication workflow
+
+1. An end user clicks on the “Login” button on a file sharing service at example.com. The file sharing service at example.com is the Service Provider, and the end user is the Client.
+2. To authenticate the user, example.com constructs a SAML Authentication Request, signs and optionally encrypts it, and **sends it directly to the IdP**. The IdP verifies the received SAML Authentication Request and, if valid, presents a login form for the end user to enter their username and password.
+3. The Service Provider redirects the Client’s browser to the IdP for authentication. Once the Client has successfully logged in, the IdP generates a SAML Assertion (also known as a SAML Token), which includes the user identity (such as the username entered before), and sends it directly to the Service Provider.
+4. The IdP redirects the Client back to the Service Provider.
+5. The Service Provider verifies the SAML Assertion, extracts the user identity from it, assigns correct permissions for the Client and then logs them into the service.
+
+![img](imgs/SAML_flow-768x509.png)
+
+Note that the Service Provider never processed or even saw the Client’s credentials. Here we succeeded logging in with two redirects.  
+However, in mobile applications, handling these redirects is an issue due to the length of HTTP Redirect URL, that's why OAuth is preferred over SAML
+
+### How OAuth works – the authorization workflow
+
+1. An end user clicks on the “Login” button on a file sharing service at example.com. The file sharing service at example.com is the Resource Server, and the end user is the Client.
+2. The Resource Server presents the Client with an Authorisation Grant, and redirects the Client to the Authorisation Server
+3. The Client requests an Access Token from the Authorisation Server using the Authorisation Grant Code
+4. The Client logs in to the Authorisation Server, and if the code is valid, the Client gets an Access Token that can be used request a protected resource from the Resource Server
+5. After receiving a request for a protected resource with an accompanying Access Token, the Resource Server verifies the validity of the token directly with the Authorisation Server
+6. If the token was valid, the Authorisation Server sends information about the Client to the Resource Server
+
+![img](imgs/OAuth_flow-768x545.png)
+
+So No Redirects as in case of SAML, but some extra round trip to the Authorization Server.  
+
+The difference between SAML and OAuth should be apparent now:  
+ SAML Assertions contain the **signed user identification information**, while with OAuth the Resource Server **needs to make additional round trip in order to authenticate the Client** with the Authorization Server.
+
+
+### So how to choose between SAML authentication and OAuth?
+Good news: one can always use both. The SAML Assertion can be used as an OAuth Bearer Token to access the protected resource.
+
+### What is OpenID (IODC)
+OIDC extends the OAuth protocol so that client services (your applications) verify user identities and exchange profile information through OpenID providers (essentially authentication servers) via RESTful APIs that dispatch JSON web tokens (JWTs) to share information during the authentication process. 
+As per my understanding, instead of dealing with XML and assertions in SAML, developers can use JSON Web Tokens.
+
