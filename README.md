@@ -98,7 +98,7 @@ Now our API or the server still has to maintain a user credentials database. Eac
 
 Enter Single Sign-On 
 
-#Single Sign-On (SSO)
+# Single Sign-On (SSO)
 We can also leverage Single Sign-on instead of JWT, where in the user authenticated with a third-party SSO server, and passes in the token to our service.  
 The service in turn validates the token with the SSO server before granting access.  
 Needless to say, this results in a lot of trivial network traffic, repeated work, and it may cause single point of failure.
