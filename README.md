@@ -49,6 +49,8 @@ Enter JWT
 ### JWT Tokens (JSON Web Tokens)
 JWT is a standard way of representing tokens. This information can be verified and trusted because it is digitally signed. Since JWT contains the signature, there is no need to save session information on the server side.
 
+![img](imgs/jwt_token.png)
+
 #### JWT Structure
 
 **Header**  
@@ -93,6 +95,14 @@ As we are living in microservices world, the services also need to authenticate/
 With JWT, the microservice has to perform two steps mainly
 * **Generating the JSON Web Token** This is the authentication part, where in the user is validated, and the payload is added with user id, expiration date etc and also user roles and user-defined information.
 * **Validating the token for received requests** This is the authorization part, where the Base64 JWT token is decrypted, expiry checked, and the request is not processed based on the user id and roles in the token
+
+|What happens if JWT is stolen?|
+|---|
+| Because JWTs are used to identify the client, if one is stolen or compromised, an attacker has full access to the user’s account in the same way they would if the attacker had instead compromised the user’s username and password.  |
+| **BUT**, there is one thing that makes a stolen JWT slightly less bad than a stolen username and password: timing. Because **JWTs can be configured to automatically expire after a set amount of time** (a minute, an hour, a day, whatever), attackers can only use your JWT to access the service until it expires.|
+| The actual problem here is that if an attacker was able to steal your token in the first place, they’re likely able to do it once you get a new token as well. The most common ways this happens is by man-in-the-middling (MITM) your connection or getting access to the client or server directly. And unfortunately, in these scenarios, even the shortest-lived JWTs won’t help you at all. |
+| So, we should treat JWTs like password, and never publicly share. Also, we should never store the tokens in HTML5 Local Storage and instead store them in server-side cookies(described above) that are not accessible to JavaScript.|
+
 
 Now our API or the server still has to maintain a user credentials database. Each user of our website/app has to sign up, the server needs to secure the password of the user, rotate password, etc. 
 
