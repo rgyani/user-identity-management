@@ -153,9 +153,41 @@ The difference between SAML and OAuth should be apparent now:
 ### So how to choose between SAML authentication and OAuth?
 Good news: one can always use both. The SAML Assertion can be used as an OAuth Bearer Token to access the protected resource.
 
-### What is OpenID (IODC)
+### What is OpenID (OIDC)
 OIDC extends the OAuth protocol so that client services (your applications) verify user identities and exchange profile information through OpenID providers (essentially authentication servers) via RESTful APIs that dispatch JSON web tokens (JWTs) to share information during the authentication process. 
 As per my understanding, instead of dealing with XML and assertions in SAML, developers can use JSON Web Tokens.
+
+
+### What is Keycloak?
+Keycloak, an **open source** identity and access management tool for modern web applications, is one approach to **securing command-line apps.**   
+Keycloak provides
+* Identity and Access Management
+* SSO which allows users to securely log into multiple applications using a single set of credentials.
+* MFA which enhances the security level by requiring the user to provide two or more factors as proof of identity. eg Facial Recogniton, or OTPs
+* Identity Provider (IdP) which is the service used to authenticate the user.
+* It also comes with a web-based GUI that makes things simple to use.
+
+##### Keycloak realms
+A Keycloak realm is an isolated management space that maintains a set of users, credentials, roles, and groups. By default, Keycloak has the master realm, whose sole purpose is to create and manage other realms in the system. Additional realms need to be created for application-based use. Configurations and users are specific to a realm.
+
+Each realm can support multiple clients. A Keycloak client represents an application or web service that uses Keycloak to authenticate and authorize users.
+
+##### Keycloak client configuration
+To secure apps with Keycloak, you need to have a little knowledge of Keycloak client configuration. Below are a few essential configurations. to provide you a basic idea of how they work. To learn more, use the admin console, where each property is described by help text.
+
+![img](imgs/keycloak.png)
+
+Keycloak allows the use of popular social identity providers, including Google, Facebook, LinkedIn, Instagram, Microsoft, Twitter, and GitHub. These can be configured at the realm level. To use them, the user must retrieve their client ID and client secret from the social media account. For example, to use the GitHub identity provider, you need to create a new OAuth app from GitHub's developer settings to generate a Client ID and Client Secret. The redirect URI should be specified in both Keycloak and the OAuth app.
+
+##### Keycloak authentication
+Public applications secured with Keycloak rely on browsers to authenticate users. Things can get tricky when a command-line app involves a browser login. The easiest way might seem to be a copy-paste authentication token, passing it as an argument with the CLI. This approach gets problematic because the credentials are stored in the terminal's history. Moreover, best practice states that users should authenticate using the authorization server's web page.
+
+Instead, to handle command-line application authentication, first, the app needs to build the URL for the authorization server and open it using a browser. The URL is created by transposing Keycloak configurations. The URL looks roughly like this:
+```
+${keycloakURL}/realms/{realm}/protocol/openid-connect/auth?client_id=${clientID}&redirect_uri=${redirectURI}&response_type=code
+````
+Once the login page is ready, a lightweight embedded server runs concurrently to handle the redirection. The redirection URI you use must be registered with the client configuration. The redirection URI will have a code as a URL parameter. The embedded server should parse the code to obtain authorization codes by requesting the OpenID connect token endpoint. Then the server needs to be stopped, and control must be transferred back to the script.  
+The authorization codes need to be stored in a configuration file. A preferred location is XDG_CONFIG_HOME, which should store user-specific configuration files.
 
 ### Open source Projects 
 * ZITADEL(https://github.com/zitadel/zitadel) combines the ease of Auth0 with the versatility of Keycloak,  providing you with a wide range of out of the box features to accelerate your project. Multi-tenancy with branding customization, secure login, self-service, OpenID Connect, OAuth2.x, SAML2, Passwordless with FIDO2 (including Passkeys), OTP, U2F, and an unlimited audit trail is there for you, ready to use.
