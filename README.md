@@ -158,3 +158,5 @@ Good news: one can always use both. The SAML Assertion can be used as an OAuth B
 OIDC extends the OAuth protocol so that client services (your applications) verify user identities and exchange profile information through OpenID providers (essentially authentication servers) via RESTful APIs that dispatch JSON web tokens (JWTs) to share information during the authentication process. 
 As per my understanding, instead of dealing with XML and assertions in SAML, developers can use JSON Web Tokens.
 
+### Open source Projects 
+* ZITADEL(https://github.com/zitadel/zitadel) combines the ease of Auth0 with the versatility of Keycloak,  providing you with a wide range of out of the box features to accelerate your project. Multi-tenancy with branding customization, secure login, self-service, OpenID Connect, OAuth2.x, SAML2, Passwordless with FIDO2 (including Passkeys), OTP, U2F, and an unlimited audit trail is there for you, ready to use.
