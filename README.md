@@ -8,8 +8,8 @@ These are various mechanism to maintain the user identity (**Authentication**)
 
 Consider a website login, eg gmail, which takes in UserName and Password. This is the **HTTP Basic Authentication**
 
-This once validated, uses the **Session + Cookie mechanism** to maintain the login.  
-The server stores the **Session**, while the browser stores the SessionID in a Cookie which is sent with each request.
+This once validated, it uses the **Session + Cookie mechanism** to maintain the login.  
+The server stores the **Session**, while the browser stores the **SessionID in a Cookie** which is sent with each request.
 
 **Cookies** are mainly used for three purposes:
 * Session management: Logins, shopping carts, game scores, or anything else the server should remember
@@ -94,22 +94,21 @@ As we are living in microservices world, the services also need to authenticate/
 
 With JWT, the microservice has to perform two steps mainly
 * **Generating the JSON Web Token** This is the authentication part, where in the user is validated, and the payload is added with user id, expiration date etc and also user roles and user-defined information.
-* **Validating the token for received requests** This is the authorization part, where the Base64 JWT token is decrypted, expiry checked, and the request is not processed based on the user id and roles in the token
+* **Validating the token for received requests** This is the authorization part, where the Base64 JWT token is decrypted, expiry checked, and the request is processed/not processed based on the user id and roles in the token
 
 |What happens if JWT is stolen?|
 |---|
 | Because JWTs are used to identify the client, if one is stolen or compromised, an attacker has full access to the user’s account in the same way they would if the attacker had instead compromised the user’s username and password.  |
 | **BUT**, there is one thing that makes a stolen JWT slightly less bad than a stolen username and password: timing. Because **JWTs can be configured to automatically expire after a set amount of time** (a minute, an hour, a day, whatever), attackers can only use your JWT to access the service until it expires.|
-| The actual problem here is that if an attacker was able to steal your token in the first place, they’re likely able to do it once you get a new token as well. The most common ways this happens is by man-in-the-middling (MITM) your connection or getting access to the client or server directly. And unfortunately, in these scenarios, even the shortest-lived JWTs won’t help you at all. |
-| So, we should treat JWTs like password, and never publicly share. Also, we should never store the tokens in HTML5 Local Storage and instead store them in server-side cookies(described above) that are not accessible to JavaScript.|
+| **BUT**, the actual problem here is that if an attacker was able to steal your token in the first place, they’re likely able to do it once you get a new token as well. The most common ways this happens is by man-in-the-middling (MITM) your connection or getting access to the client or server directly. And unfortunately, in these scenarios, even the shortest-lived JWTs won’t help you at all. |
+| So, we should treat JWTs like password, and never publicly share them. Also, we should never store the tokens in HTML5 Local Storage and instead store them in server-side cookies (described above) that are not accessible to JavaScript.|
 
 
-Now our API or the server still has to maintain a user credentials database. Each user of our website/app has to sign up, the server needs to secure the password of the user, rotate password, etc. 
-
-Enter Single Sign-On 
+Now our API or the server still has to maintain a user credentials database. Each user of our website/app has to sign up, the server needs to secure the password of the user, rotate password, etc.   
+To Ease these repetitive and error-prone tasks, we have Single Sign-On 
 
 # Single Sign-On (SSO)
-We can also leverage Single Sign-on instead of JWT, where in the user authenticated with a third-party SSO server, and passes in the token to our service.  
+We can leverage Single Sign-on instead of JWT, where the user is authenticated with a third-party SSO server, and passes in the token to our service.  
 The service in turn validates the token with the SSO server before granting access.  
 Needless to say, this results in a lot of trivial network traffic, repeated work, and it may cause single point of failure.
 
@@ -124,7 +123,7 @@ Security Assertion Markup Language (SAML) and Open Authorization (OAuth) have em
 ### How SAML works – the authentication workflow
 
 1. An end user clicks on the “Login” button on a file sharing service at example.com. The file sharing service at example.com is the Service Provider, and the end user is the Client.
-2. To authenticate the user, example.com constructs a SAML Authentication Request, signs and optionally encrypts it, and **sends it directly to the IdP**. The IdP verifies the received SAML Authentication Request and, if valid, presents a login form for the end user to enter their username and password.
+2. To authenticate the user, example.com constructs a SAML Authentication Request, signs and optionally encrypts it, and **sends it directly to the IdP** (eg. Google, Facebook, Apple, AWS which manage user authentication). The IdP verifies the received SAML Authentication Request and, if valid, presents a login form for the end user to enter their username and password.
 3. The Service Provider redirects the Client’s browser to the IdP for authentication. Once the Client has successfully logged in, the IdP generates a SAML Assertion (also known as a SAML Token), which includes the user identity (such as the username entered before), and sends it directly to the Service Provider.
 4. The IdP redirects the Client back to the Service Provider.
 5. The Service Provider verifies the SAML Assertion, extracts the user identity from it, assigns correct permissions for the Client and then logs them into the service.
@@ -132,7 +131,7 @@ Security Assertion Markup Language (SAML) and Open Authorization (OAuth) have em
 ![img](imgs/SAML_flow-768x509.png)
 
 Note that the Service Provider never processed or even saw the Client’s credentials. Here we succeeded logging in with two redirects.  
-However, in mobile applications, handling these redirects is an issue due to the length of HTTP Redirect URL, that's why OAuth is preferred over SAML
+However, **in mobile applications, handling these redirects is an issue due to the length of HTTP Redirect URL, that's why OAuth is preferred over SAML**
 
 ### How OAuth works – the authorization workflow
 
