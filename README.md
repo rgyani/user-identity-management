@@ -164,7 +164,7 @@ Keycloak provides
 * Identity and Access Management
 * SSO which allows users to securely log into multiple applications using a single set of credentials.
 * MFA which enhances the security level by requiring the user to provide two or more factors as proof of identity. eg Facial Recogniton, or OTPs
-* Identity Provider (IdP) which is the service used to authenticate the user.
+* Identity Provider (IdP) which is the service used to authenticate the user. That means, you can create users also in keycloak
 * It also comes with a web-based GUI that makes things simple to use.
 
 ##### Keycloak realms
