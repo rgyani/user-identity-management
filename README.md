@@ -153,9 +153,14 @@ The difference between SAML and OAuth should be apparent now:
 ### So how to choose between SAML authentication and OAuth?
 Good news: one can always use both. The SAML Assertion can be used as an OAuth Bearer Token to access the protected resource.
 
-### What is OpenID (OIDC)
+### What is OpenID Connect (OIDC)
 OIDC extends the OAuth protocol so that client services (your applications) verify user identities and exchange profile information through OpenID providers (essentially authentication servers) via RESTful APIs that dispatch JSON web tokens (JWTs) to share information during the authentication process. 
 As per my understanding, instead of dealing with XML and assertions in SAML, developers can use JSON Web Tokens.
+
+### OAuth vs OpenID Connect
+The OAuth 2.0 framework explicitly does not provide any information about the user that has authorized an application. OAuth 2.0 is a delegation framework, allowing third-party applications to act on behalf of a user, without the application needing to know the identity of the user.
+
+OpenID Connect takes the OAuth 2.0 framework and adds an identity layer on top. It provides information about the user, as well as enables clients to establish login sessions. While this chapter is not meant to be a complete guide to OpenID Connect, it is meant to clarify how OAuth 2.0 and OpenID Connect relate to each other.
 
 
 ### What is Keycloak?
