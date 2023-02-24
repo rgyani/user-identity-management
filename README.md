@@ -162,6 +162,8 @@ The OAuth 2.0 framework explicitly does not provide any information about the us
 
 OpenID Connect takes the OAuth 2.0 framework and adds an identity layer on top. It provides information about the user, as well as enables clients to establish login sessions. While this chapter is not meant to be a complete guide to OpenID Connect, it is meant to clarify how OAuth 2.0 and OpenID Connect relate to each other.
 
+https://developer.okta.com/blog/2019/01/23/nobody-cares-about-oauth-or-openid-connect
+https://developer.okta.com/blog/2019/10/21/illustrated-guide-to-oauth-and-oidc
 
 ### What is Keycloak?
 Keycloak, an **open source** identity and access management tool for modern web applications, is one approach to **securing command-line apps.**   
