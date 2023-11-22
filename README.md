@@ -1,6 +1,6 @@
 ### Session, cookie, JWT, token, SSO, and OAuth 2.0
 
-These are various mechanism to maintain the user identity (**Authentication**)
+These are various mechanism to maintain the user identity
 
 **Authentication** verifies the identity of a user or service, and   
 **Authorization** determines their access rights. 
