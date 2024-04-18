@@ -53,37 +53,20 @@ JWT is a standard way of representing tokens. This information can be verified a
 
 #### JWT Structure
 
-**Header**  
-Identifies which algorithm is used to generate the signature
-```
-{
-  "alg": "HS256",
-  "typ": "JWT"
-}
-```
-typical cryptographic algorithms used are HMAC with SHA-256 (HS256) and RSA signature with SHA-256 (RS256).
+||||
+|---|---|---|
+| **Header** | Identifies which algorithm is used to generate the signature <br> typical cryptographic algorithms used are HMAC with SHA-256 (HS256) and RSA signature with SHA-256 (RS256).| {<br>&nbsp;&nbsp; "alg": "HS256", <br> &nbsp;&nbsp; "typ": "JWT"<br>} | 
+|**Payload** | Contains a set of claims. eg, Issued At Time claim (iat) and a custom claim (loggedInAs). | {<br>&nbsp;&nbsp; "loggedInAs": "admin", <br>&nbsp;&nbsp; "iat": 1422779638 <br>}|
+|**Signature**| Securely validates the token. The signature is calculated by encoding the header and payload using Base64url Encoding and concatenating the two together with a period separator. That string is then run through the cryptographic algorithm specified in the header.| HMAC_SHA256(<br/>&nbsp;&nbsp; secret,<br/>&nbsp;&nbsp; base64urlEncoding(header) + '.' +  base64urlEncoding(payload)<br>)|
 
-**Payload**
-```{
-  "loggedInAs": "admin",
-  "iat": 1422779638
-}
-```
-Contains a set of claims. eg, Issued At Time claim (iat) and a custom claim (loggedInAs).
 
-**Signature**   
-Securely validates the token. The signature is calculated by encoding the header and payload using Base64url Encoding and concatenating the two together with a period separator. That string is then run through the cryptographic algorithm specified in the header.
-```
-HMAC_SHA256(
-  secret,
-  base64urlEncoding(header) + '.' +
-  base64urlEncoding(payload)
-)
-```
 The three parts are encoded separately using Base64url Encoding, and concatenated using periods to produce the JWT:
 ```
 const token = base64urlEncoding(header) + '.' + base64urlEncoding(payload) + '.' + base64urlEncoding(signature)
 ```
+
+**Remember the token is signed, but not encrypted, everyone can read its contents, but when you don't know the private key, you can't change it. The receiver can however check if the message has changed by matching the signature**
+
 
 In authentication, when the user successfully logs in using their credentials, a JSON Web Token will be returned and must be saved locally (typically in local or session storage, but cookies can also be used), instead of the traditional approach of creating a session in the server and returning a cookie. 
 
