@@ -28,23 +28,24 @@ Set-Cookie: id=a3fWa; Expires=Thu, 21 Oct 2021 07:28:00 GMT; Secure; HttpOnly
 ```
 This specifies
 * The Cookie with id=a3fWa will send on each subsequent request till expiry
-* With the Expires date and time, the cookie will be expired relative to the client time, not the server
-* A cookie with the Secure attribute is only sent to the server with an encrypted request over the HTTPS protocol. It's never sent with unsecured HTTP (except on localhost), which means man-in-the-middle attackers can't access it easily
-* A cookie with the HttpOnly attribute is inaccessible to the JavaScript Document.cookie API; it's only sent to the server. For example, cookies that persist in server-side sessions don't need to be available to JavaScript and should have the HttpOnly attribute. This precaution helps mitigate cross-site scripting (XSS) attacks.
+* With the **Expires** date and time, the cookie will be expired relative to the client time, not the server
+* A cookie with the **Secure** attribute is only sent to the server with an **encrypted** request over the HTTPS protocol. It's never sent with unsecured HTTP (except on localhost), which means man-in-the-middle attackers can't access it easily
+* A cookie with the **HttpOnly** attribute is **inaccessible to the JavaScript Document.cookie** API; it's only sent to the server. For example, cookies that persist in server-side sessions don't need to be available to JavaScript and should have the HttpOnly attribute. **This precaution helps mitigate cross-site scripting (XSS) attacks**.
+
 
 This mechanism worked well in the pre-mobile world, when we mainly used browsers to access the internet.  
 However, with the advent of mobile computing, a better mechanism was needed, since we have applications other than browsers making HTTP requests.  
 Enter Tokens
 
 ### Tokens
-The server could generate a token that has the claim eg "logged in as administrator" and provide that to a client.  
+Instead of looking up the session_id in the database, for each request, the server could generate a token that has the claim eg "logged in as administrator" and provide that to a client.  
 The client could then use that token to prove that it is logged in as admin. 
 
 The tokens can be signed by server's private key, so that the server decrypts and verifies that the token is legitimate.  
-However, if client wants to verify the token's legitimacy, it can use the public key, if available.
+However, if client wants to verify the token's legitimacy, it can use the public key, **if available**.
 
 From what we see above, each server can have its own mechanism to encrypt tokens. A standardization was needed.  
-Enter JWT
+**Enter JWT**
 
 ### JWT Tokens (JSON Web Tokens)
 JWT is a standard way of representing tokens. This information can be verified and trusted because it is digitally signed. Since JWT contains the signature, there is no need to save session information on the server side.
@@ -65,7 +66,7 @@ The three parts are encoded separately using Base64url Encoding, and concatenate
 const token = base64urlEncoding(header) + '.' + base64urlEncoding(payload) + '.' + base64urlEncoding(signature)
 ```
 
-**Remember the token is signed, but not encrypted, everyone can read its contents, but when you don't know the private key, you can't change it. The receiver can however check if the message has changed by matching the signature**
+**Remember the JWT is signed, but not encrypted, everyone can read its contents, but when you don't know the private key, you can't change it. The receiver can however check if the message has changed by matching the signature**
 
 
 In authentication, when the user successfully logs in using their credentials, a JSON Web Token will be returned and must be saved locally (typically in local or session storage, but cookies can also be used), instead of the traditional approach of creating a session in the server and returning a cookie. 
@@ -84,7 +85,7 @@ With JWT, the microservice has to perform two steps mainly
 | Because JWTs are used to identify the client, if one is stolen or compromised, an attacker has full access to the user’s account in the same way they would if the attacker had instead compromised the user’s username and password.  |
 | **BUT**, there is one thing that makes a stolen JWT slightly less bad than a stolen username and password: timing. Because **JWTs can be configured to automatically expire after a set amount of time** (a minute, an hour, a day, whatever), attackers can only use your JWT to access the service until it expires.|
 | **BUT**, the actual problem here is that if an attacker was able to steal your token in the first place, they’re likely able to do it once you get a new token as well. The most common ways this happens is by man-in-the-middling (MITM) your connection or getting access to the client or server directly. And unfortunately, in these scenarios, even the shortest-lived JWTs won’t help you at all. |
-| So, we should treat JWTs like password, and never publicly share them. Also, we should never store the tokens in HTML5 Local Storage and instead store them in server-side cookies (described above) that are not accessible to JavaScript.|
+| So, we should treat JWTs like password, and never publicly share them. **Also, we should never store the tokens in HTML5 Local Storage and instead store them in server-side cookies** (described above) that are not accessible to JavaScript.|
 
 
 Now our API or the server still has to maintain a user credentials database. Each user of our website/app has to sign up, the server needs to secure the password of the user, rotate password, etc.   
@@ -147,6 +148,20 @@ OpenID Connect takes the OAuth 2.0 framework and adds an identity layer on top. 
 
 https://developer.okta.com/blog/2019/01/23/nobody-cares-about-oauth-or-openid-connect
 https://developer.okta.com/blog/2019/10/21/illustrated-guide-to-oauth-and-oidc
+
+
+### GDPR and cookies
+The **GDPR (General Data Protection Regulation)** is a set of privacy laws established by the **European Union (EU)** to protect the personal data and privacy of EU citizens. When it comes to cookies, the GDPR has specific requirements about how websites handle them, as cookies can collect personal information or track users in ways that can impact privacy.  
+Under the GDPR, cookies that are used for tracking or collecting personal data require the explicit consent of the user before they are set.
+1. **Prior Consent**: Websites must ask for consent before placing cookies on a user's device, except for cookies that are strictly necessary for the functioning of the site (e.g., session cookies for login).
+2. **Clear Information**: The website must inform users about the cookies being used and their purpose (e.g., tracking, analytics, etc.). This is typically done through a cookie banner or pop-up.
+3. **Granular Consent**: Users should be able to give granular consent for specific types of cookies (e.g., functional cookies, analytics cookies, advertising cookies) and should be able to withdraw consent easily.```
+
+##### Necessary vs. Non-Essential Cookies
+The GDPR makes a distinction between necessary cookies and non-essential cookies:
+1. **Necessary cookies:** These are essential for the basic operation of the website (e.g., authentication, cart functionality). **Consent is not required for these cookies, but users should still be informed about their usage**.
+2. **Non-essential cookies:** These include cookies used for tracking, advertising, or analytics. Consent is required before setting these cookies.
+
 
 ### What is Keycloak?
 Keycloak, an **open source** identity and access management tool for modern web applications, is one approach to **securing command-line apps.**   
