@@ -149,6 +149,47 @@ OpenID Connect takes the OAuth 2.0 framework and adds an identity layer on top. 
 https://developer.okta.com/blog/2019/01/23/nobody-cares-about-oauth-or-openid-connect
 https://developer.okta.com/blog/2019/10/21/illustrated-guide-to-oauth-and-oidc
 
+## SAML vs OAuth vs OpenID vs SSO. when to use what 
+The choice between SAML, OAuth, OpenID, and SSO depends on the authentication and authorization requirements of your application. Here’s a breakdown of when to use each:
+
+1. SAML (Security Assertion Markup Language)  
+Use SAML when:
+    - You need **Single Sign-On (SSO)** for enterprise applications (e.g., accessing multiple apps after logging in once).
+    - You're dealing with **older enterprise systems** that don't support OAuth.
+    - Your app integrates with corporate identity providers like Okta, Azure AD, or ADFS.
+    - The main goal is **authentication (verifying who the user is).**
+    - You work with **XML-based identity assertions.**
+
+    Example Use Case: An employee logs into their company portal, and SAML allows them to access Salesforce, Workday, and other apps without logging in again.
+
+2. OAuth (Open Authorization)  
+Use OAuth when:
+    - You need to grant **third-party applications** access to user data without sharing credentials.
+    - Your app needs **authorization** (not just authentication) to access protected resources (APIs, user profiles, files, etc.).
+    - You're working with **mobile or web apps** that need to authenticate users via external services (e.g., Google, Facebook).
+    - You need **support for modern token-based authentication (JWTs).**
+
+    Example Use Case: A mobile app requests permission to access a user’s Google Drive files without asking for their Google password.
+
+3. OpenID Connect (OIDC)  
+Use OpenID Connect when:
+    * You need a modern, OAuth-based **authentication system**.
+    * Your app needs **user identity verification in a RESTful JSON format** (instead of XML like SAML).
+    * You want to use **social logins** (e.g., Google, Facebook, Microsoft).
+    * Your app needs **ID Tokens (JWTs)** for session management.
+    * You're working with **web, mobile, or API-driven applications**.
+
+    Example Use Case: A user logs into a third-party app using their Google account via “Sign in with Google”, which returns an ID token verifying their identity.
+
+4. SSO (Single Sign-On)  
+    * SSO is a concept, not a protocol
+    * SSO can be implemented using SAML, OAuth, or OpenID Connect, depending on the use case.
+
+Example Use Case:
+* **Enterprise SSO**: A corporate employee logs in once and gets access to multiple internal applications (typically SAML-based).
+* **Social SSO**: A user logs into multiple third-party apps using their Google or Facebook account (typically OpenID Connect-based).
+
+
 
 ### GDPR and cookies
 The **GDPR (General Data Protection Regulation)** is a set of privacy laws established by the **European Union (EU)** to protect the personal data and privacy of EU citizens. When it comes to cookies, the GDPR has specific requirements about how websites handle them, as cookies can collect personal information or track users in ways that can impact privacy.  
