@@ -237,3 +237,35 @@ The authorization codes need to be stored in a configuration file. A preferred l
 
 ### Open source Projects 
 * ZITADEL(https://github.com/zitadel/zitadel) combines the ease of Auth0 with the versatility of Keycloak,  providing you with a wide range of out of the box features to accelerate your project. Multi-tenancy with branding customization, secure login, self-service, OpenID Connect, OAuth2.x, SAML2, Passwordless with FIDO2 (including Passkeys), OTP, U2F, and an unlimited audit trail is there for you, ready to use.
+
+# Use API Gateway with Cognito
+
+When API Gateway uses an Amazon Cognito token for authentication, **it validates the token locally without directly communicating with Amazon Cognito to verify that the token belongs to the same AWS account**. Here's how it works:
+
+
+### How API Gateway Validates Tokens
+1. **Decoding the Token:**
+    - API Gateway decodes the JSON Web Token (JWT) using the **public key from the JWKS (JSON Web Key Set) endpoint of the Cognito User Pool**. This public key is specific to the User Pool and can be used to validate tokens issued by that User Pool.
+2. **Validating the Token:**
+    - API Gateway checks:
+        - The **signature** of the token to confirm it is issued by the corresponding Cognito User Pool.
+        - The **issuer (iss) claim**, which should match the User Pool's URL (e.g., https://cognito-idp.<region>.amazonaws.com/<user_pool_id>).
+        - The **audience (aud) claim**, which should match the app client ID associated with the User Pool.
+        - The **expiration (exp) claim**, ensuring the token is still valid.
+    
+### No Communication with Cognito
+- API Gateway does not call Cognito to verify the token's validity or confirm that it belongs to the same AWS account.
+- Validation is purely based on the token's signature and claims. As long as the token is valid and meets the above criteria, API Gateway will allow access.
+
+### Implications
+- If the token is forged but contains the correct signature and claims, it will pass validation. However, forging a token is practically impossible if the private key of the User Pool is secure.
+- Revocation or invalidation of tokens (e.g., if a user is disabled in the User Pool) **is not checked by API Gateway**. This is because API Gateway doesn't interact with Cognito at runtime. To handle such cases, you might need additional custom logic in your backend.
+
+### How to Enhance Security
+1. **Use Short-Lived Tokens:** Configure access tokens to have a short TTL (Time-To-Live) to minimize risk.
+2. **Custom Authorizers:**
+    - You can implement a Lambda authorizer in API Gateway to perform additional checks, such as querying Cognito to confirm the token is still valid and belongs to the correct AWS account.
+3. **Regularly Rotate App Client Secrets:** Ensure app client secrets used by your User Pool are securely stored and rotated periodically.
+
+This design avoids unnecessary calls to Cognito, improving performance and scalability, but shifts the responsibility for additional security checks to the developer if needed.
+
