@@ -87,14 +87,72 @@ With JWT, the microservice has to perform two steps mainly
 | **BUT**, the actual problem here is that if an attacker was able to steal your token in the first place, they’re likely able to do it once you get a new token as well. The most common ways this happens is by man-in-the-middling (MITM) your connection or getting access to the client or server directly. And unfortunately, in these scenarios, even the shortest-lived JWTs won’t help you at all. |
 | So, we should treat JWTs like password, and never publicly share them. **Also, we should never store the tokens in HTML5 Local Storage and instead store them in server-side cookies** (described above) that are not accessible to JavaScript.|
 
+#### Access Token and Refresh Token
 
-Now our API or the server still has to maintain a user credentials database. Each user of our website/app has to sign up, the server needs to secure the password of the user, rotate password, etc.   
-To Ease these repetitive and error-prone tasks, we have Single Sign-On 
+There are two types of JWT Token
+- **Access Token** — short-lived (5–15 min), stateless JWT. The server verifies it by checking the signature alone — no DB lookup needed.
+- **Refresh Token** — long-lived (days/weeks), used only to get new access tokens. This one is usually stored in a DB.
+
+Typical Access Flow
+```code
+1. LOGIN
+   Client → POST /login (credentials)
+   Server → issues:
+     - access_token  (JWT, expires in 15min)
+     - refresh_token (opaque or JWT, expires in 7 days)
+     - Stores: { user_id, refresh_token_hash, expires_at } in DB
+
+2. NORMAL API CALLS
+   Client → sends access_token in Authorization header
+   Server → verifies JWT signature (no DB hit) ✓
+
+3. ACCESS TOKEN EXPIRES
+   Client → POST /refresh  { refresh_token }
+   Server → looks up refresh_token in DB
+           → checks it's not expired/revoked
+           → issues new access_token (+ optionally rotates refresh_token)
+
+4. LOGOUT
+   Server → deletes refresh_token from DB (instantly invalidated)
+```
+
+#### Why Store the Refresh Token in a DB?
+Because **refresh tokens need to be revocable**. JWTs are stateless — once issued, you can't invalidate them until expiry. If you want logout / "sign out all devices" / token theft response to work, you need server-side state for the refresh token.
+
+#### Token Rotation (best practice)
+Every time a refresh token is used, it's replaced:
+```code
+Client uses refresh_token_v1
+→ Server issues new access_token + refresh_token_v2
+→ refresh_token_v1 is marked revoked in DB
+```
+This detects refresh token theft — if an attacker uses a stolen token that was already rotated, the server sees a reuse of an invalidated token and can revoke the whole family.
+
 
 # Single Sign-On (SSO)
+Even with JWT, our API or the server still has to maintain a user credentials database. Each user of our website/app has to sign up, the server needs to secure the password of the user, rotate password, etc.   
+To Ease these repetitive and error-prone tasks, we have Single Sign-On 
+
+**SSO lets a user log in once and gain access to multiple applications without logging in again for each one.**
+
+Instead of every app managing its own login, they all delegate authentication to a central trusted service called an Identity Provider (IdP).
+```code
+Without SSO:
+  App A → its own login
+  App B → its own login  
+  App C → its own login
+
+With SSO:
+  IdP → login once
+    → App A ✓
+    → App B ✓
+    → App C ✓
+```
+Real world examples: logging into Gmail also logs you into YouTube, Google Drive, Google Docs — that's SSO.
+
 We can leverage Single Sign-on instead of JWT, where the user is authenticated with a third-party SSO server, and passes in the token to our service.  
 The service in turn validates the token with the SSO server before granting access.  
-Needless to say, this results in a lot of trivial network traffic, repeated work, and it may cause single point of failure.
+Needless to say, **this results in a lot of trivial network traffic, repeated work, and it may cause single point of failure.**
 
 ![img](imgs/sso.png)
 
