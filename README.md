@@ -173,7 +173,10 @@ Security Assertion Markup Language (SAML) and Open Authorization (OAuth) have em
 ![img](imgs/SAML_flow-768x509.png)
 
 Note that the Service Provider never processed or even saw the Client’s credentials. Here we succeeded logging in with two redirects.  
-However, **in mobile applications, handling these redirects is an issue due to the length of HTTP Redirect URL, that's why OAuth is preferred over SAML**
+
+However, **SAML struggles on mobile devices** because it was architected in the early 2000s for a browser-centric world, relying heavily on bulky XML payloads. While a SAML authentication request can sometimes squeeze into standard browser URL limits via HTTP Redirects, the authentication response—the SAML Assertion—is a heavy, cryptographically signed XML token that frequently exceeds several kilobytes. Because this data is too massive for a mobile URL string, SAML relies on HTTP POST Bindings, where a webpage automatically POSTs the token back to the client. Native iOS and Android apps do not have a web server backend to receive or parse incoming POST requests, forcing developers into fragile, insecure workarounds like embedded web views or interceptor proxies.    
+Newer, OAuth 2.0 and OpenID Connect (OIDC) were custom-built for modern apps and APIs. Instead of verbose XML, they utilize lightweight JSON Web Tokens (JWTs) that are highly compact and efficient to transmit over mobile networks.
+
 
 ### How OAuth works – the authorization workflow
 
