@@ -69,7 +69,7 @@ const token = base64urlEncoding(header) + '.' + base64urlEncoding(payload) + '.'
 **Remember the JWT is signed, but not encrypted, everyone can read its contents, but when you don't know the private key, you can't change it. The receiver can however check if the message has changed by matching the signature**
 
 
-In authentication, when the user successfully logs in using their credentials, a JSON Web Token will be returned and must be saved locally (typically in local or session storage, but cookies can also be used), instead of the traditional approach of creating a session in the server and returning a cookie. 
+In authentication, when the user successfully logs in using their credentials, a JSON Web Token will be returned and must be saved locally (typically in Secure, HTTPOnly cookie, but never in localStorage(to prevent XSS attacks)), instead of the traditional approach of creating a session in the server and returning a cookie. 
 
 
 As we are living in microservices world, the services also need to authenticate/authorize between each other
